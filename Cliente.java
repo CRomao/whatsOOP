@@ -27,7 +27,7 @@ public class Cliente extends Thread {
         DataOutputStream vaiPraServidor;
         BufferedReader veioDoServidor;
         String txt;
-        String txt2;
+        String txt2, nomeUser;
 
         Socket cliente = new Socket(ip, porta);
 
@@ -39,34 +39,35 @@ public class Cliente extends Thread {
 
         veioDoServidor = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
 
+        System.out.print("Digite o seu nome: ");
+        nomeUser = msgInicial.readLine();
+        System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+        vaiPraServidor.writeBytes(nomeUser + '\n');
+
         Thread t = new Cliente(cliente);
         t.start();
 
         while (true) {
             txt = msgInicial.readLine();
-            System.out.println("TXT2 " + txt);
             vaiPraServidor.writeBytes(txt + '\n');
-
+            if (txt.equalsIgnoreCase("sair"))break;
         }
-        // cliente.close();
-
     }
 
     @Override
     public void run() {
         String txt2;
-        DataOutputStream vaiPraServidor;
         BufferedReader veioDoServidor;
 
         try {
-            vaiPraServidor = new DataOutputStream(cliente.getOutputStream());
             veioDoServidor = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
             while (true) {
                 txt2 = veioDoServidor.readLine();
-                System.out.println("Veio do Servidor: " + txt2);
+                if (txt2.equalsIgnoreCase("sair"))break;
+                System.out.println(txt2);
             }
         } catch (Exception e) {
-
+            System.out.println("Você saiu do chat.");
         }
     }
 }

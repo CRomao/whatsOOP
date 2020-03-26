@@ -29,35 +29,58 @@ public class Servidor extends Thread {
 
         BufferedReader veioDoCliente;
         DataOutputStream vaiPraCliente;
+        String nomeUser;
+        
         try {
+            
             String msgCliente;
             String enviarMsg;
             veioDoCliente = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
             vaiPraCliente = new DataOutputStream(cliente.getOutputStream());
+            nomeUser = veioDoCliente.readLine();
             User newUser = new User(veioDoCliente, vaiPraCliente);
+            newUser.setName(nomeUser);
             users.addNewUser(newUser);
+            
             while (true) {
+                System.out.println("oi");
                 msgCliente = veioDoCliente.readLine();
-                System.out.println(msgCliente);
-                mandarPraTodos(msgCliente);
-                //vaiPraCliente.writeBytes(msgCliente + '\n');
+                mandarPraTodos(msgCliente, nomeUser);
             }
+            
         } catch (IOException ex) {
-            System.out.println("Erro ao criar cliente e obter INPUT e OUTPUT");
+           // System.out.println("Erro ao criar cliente e obter INPUT e OUTPUT");
+            System.out.println(ex);
         }
-
-//        msgCliente = veioDoCliente.readLine();
-//        System.out.println(msgCliente);
-//        vaiPraCliente.writeBytes(msgCliente + '\n');
     }
 
-    public void mandarPraTodos(String txt) {
-        System.out.println(users.listUsers.size());
+    public void mandarPraTodos(String txt, String nomeUser) {
+        boolean saiu = false;
+        int user = -1;
+        if(txt.equalsIgnoreCase("sair")){
+            txt = "*** " + nomeUser + " saiu do chat";
+            saiu = true;
+        }else{
+            txt = nomeUser + ": " + txt;
+        }
+        
         try {
             for (int i = 0; i < users.listUsers.size(); i++) {
-                System.out.println(users.listUsers.get(i).getOutputClient());
-                users.listUsers.get(i).getOutputClient().writeBytes(txt + '\n');
+                if(!(nomeUser == users.listUsers.get(i).getName())){
+                    users.listUsers.get(i).getOutputClient().writeBytes(txt + '\n'); 
+                }
+                if(nomeUser == users.listUsers.get(i).getName() && saiu == true){
+                    users.listUsers.get(i).getOutputClient().writeBytes("sair" + '\n'); 
+                    user = i;
+                }
+                System.out.println(users.listUsers.get(i).getName());
             }
+            if(saiu){
+                users.listUsers.remove(user);
+                cliente.close();
+            }
+            
+            
         } catch (IOException ex) {
             System.out.println("Erro ao enviar mensagem para todos...");
         }
@@ -65,25 +88,13 @@ public class Servidor extends Thread {
 
     public static void main(String[] args) throws IOException {
 
-        String msgCliente;
-        String enviarMsg;
-
         ServerSocket servidor = new ServerSocket(1);
-        //Socket cliente = servidor.accept();
+        
         while (true) {
+            System.out.print("Esperando conexão...");
             Socket cliente = servidor.accept();
-            System.out.println("conectou");
+            System.out.println("conectou!");
             new Servidor(cliente).start();
-
-//            BufferedReader veioDoCliente
-//                    = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
-//
-//            DataOutputStream vaiPraCliente
-//                    = new DataOutputStream(cliente.getOutputStream());
-//
-//            msgCliente = veioDoCliente.readLine();
-//            System.out.println(msgCliente);
-//            vaiPraCliente.writeBytes(msgCliente + '\n');
         }
 
     }
