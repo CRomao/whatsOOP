@@ -1,15 +1,14 @@
 package outraTentativa;
 
-import java.net.Socket;
-import outroCanal.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.util.ArrayList;
 
-public class ListUsers{
+public class ListUsers {
 
-    ArrayList<Socket> listUsers = new ArrayList<>();
-    
-    public void addUser(Socket newUser){
+    ArrayList<User> listUsers = new ArrayList<>();
+
+    public void addNewUser(User newUser) {
         listUsers.add(newUser);
-    }    
-    
+    }
 }
