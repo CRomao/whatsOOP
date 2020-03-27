@@ -15,12 +15,12 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Servidor extends Thread {
+public class ServidorGUI extends Thread {
 
     private Socket cliente;
     private static ListUsers users = new ListUsers();
 
-    public Servidor(Socket novoCliente) {
+    public ServidorGUI(Socket novoCliente) {
         this.cliente = novoCliente;
     }
 
@@ -38,6 +38,7 @@ public class Servidor extends Thread {
             veioDoCliente = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
             vaiPraCliente = new DataOutputStream(cliente.getOutputStream());
             nomeUser = veioDoCliente.readLine();
+            System.out.println(nomeUser);
             User newUser = new User(veioDoCliente, vaiPraCliente);
             newUser.setName(nomeUser);
             users.addNewUser(newUser);
@@ -45,6 +46,7 @@ public class Servidor extends Thread {
             while (true) {
                 System.out.println("oi");
                 msgCliente = veioDoCliente.readLine();
+                System.out.println(msgCliente);
                 mandarPraTodos(msgCliente, nomeUser);
             }
             
@@ -73,12 +75,15 @@ public class Servidor extends Thread {
                     users.listUsers.get(i).getOutputClient().writeBytes("sair" + '\n'); 
                     user = i;
                 }
+                System.out.println(users.listUsers.get(i).getName());
+                System.out.println(users.listUsers.get(i).getInputClient());
+                System.out.println(users.listUsers.get(i).getOutputClient());
             }
             if(saiu){
                 users.listUsers.remove(user);
                 cliente.close();
             }
-            
+            System.out.println(users.listUsers.size());
             
         } catch (IOException ex) {
             System.out.println("Erro ao enviar mensagem para todos...");
@@ -93,7 +98,7 @@ public class Servidor extends Thread {
             System.out.print("Esperando conexão...");
             Socket cliente = servidor.accept();
             System.out.println("conectou!");
-            new Servidor(cliente).start();
+            new ServidorGUI(cliente).start();
         }
 
     }

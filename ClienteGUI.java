@@ -12,11 +12,11 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Cliente extends Thread {
+public class ClienteGUI extends Thread {
 
     private Socket cliente;
 
-    public Cliente(Socket s) {
+    public ClienteGUI(Socket s) {
         cliente = s;
     }
 
@@ -44,7 +44,7 @@ public class Cliente extends Thread {
         System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-");
         vaiPraServidor.writeBytes(nomeUser + '\n');
 
-        Thread t = new Cliente(cliente);
+        Thread t = new ClienteGUI(cliente);
         t.start();
 
         while (true) {
