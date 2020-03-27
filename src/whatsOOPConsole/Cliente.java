@@ -3,9 +3,7 @@ package whatsOOPConsole;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -62,6 +60,7 @@ public class Cliente extends Thread {
 
         //Controle para mandar para o servidor.
         while (true) {
+            System.out.print("> ");
             txt = msgInicial.readLine();
             vaiPraServidor.writeBytes(txt + '\n');
             if (txt.equalsIgnoreCase("sair"))break;
@@ -83,7 +82,9 @@ public class Cliente extends Thread {
                     System.out.println(txt2);
                     break;
                 }
+                System.out.println();
                 System.out.println(txt2);
+                System.out.print("> ");
             }
         } catch (Exception e) {
             System.out.println("Erro ao receber mensagem do servidor.");
