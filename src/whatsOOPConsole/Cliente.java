@@ -1,4 +1,4 @@
-package whatsOOP;
+package whatsOOPConsole;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,11 +12,11 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class ClienteGUI extends Thread {
+public class Cliente extends Thread {
 
     private Socket cliente;
 
-    public ClienteGUI(Socket s) {
+    public Cliente(Socket s) {
         cliente = s;
     }
 
@@ -44,7 +44,7 @@ public class ClienteGUI extends Thread {
         System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-");
         vaiPraServidor.writeBytes(nomeUser + '\n');
 
-        Thread t = new ClienteGUI(cliente);
+        Thread t = new Cliente(cliente);
         t.start();
 
         while (true) {
