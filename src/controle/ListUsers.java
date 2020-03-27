@@ -1,8 +1,10 @@
-package whatsOOPConsole;
+package controle;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
+
+//Classe para a lista de usuários.
 
 public class ListUsers {
 

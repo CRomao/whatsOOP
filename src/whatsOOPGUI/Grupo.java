@@ -21,7 +21,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import whatsOOPConsole.ListUsers;
+import controle.ListUsers;
 
 /**
  *
@@ -29,37 +29,39 @@ import whatsOOPConsole.ListUsers;
  */
 public class Grupo extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Grupo
-     */
     private static int porta;
     private static String ip;
     private Socket cliente;
     private BufferedReader veioDoServidor;
-    private BufferedReader msgInicial;
     private DataOutputStream vaiPraServidor;
-    String txt;
-    String txt2, nomeUser;
-    UsuariosGUI usuarios = new UsuariosGUI();
+    String  nomeUser;
+    
     public Grupo() {
         initComponents();
         this.setLocationRelativeTo(null);
         jtxTela.setEditable(false);
+        //Chama a função para iniciar o diálogo da conexão inicial.
         iniciar();
-        Escutar t = new Escutar(cliente, jtxTela);
+        //Thread para receber do servidor.
+        ReceberDoServidor t = new ReceberDoServidor(cliente, jtxTela);
         t.start();
     }
 
+    //Função para iniciar o diálogo da conexão inicial.
     public void iniciar() {
-        JLabel lblMessage = new JLabel("Conexão");
+        JLabel lblMensagem = new JLabel("Conexão");
         JTextField ip = new JTextField("127.0.0.1");
-        JTextField porta = new JTextField("12345");
+        JTextField porta = new JTextField("1");
         JTextField nome = new JTextField("Cliente");
-        Object[] texts = {lblMessage, ip, porta, nome};
+        
+        Object[] texts = {lblMensagem, ip, porta, nome};
         JOptionPane.showMessageDialog(null, texts);
+        
         jlUserCurrent.setText(nome.getText());
         this.porta = Integer.parseInt(porta.getText());
         this.ip = ip.getText();
+        
+        //Tenta criar o socket do cliente e captura o InputStream e OutputStream dele.
         try {
             this.cliente = new Socket(this.ip, this.porta);
             vaiPraServidor = new DataOutputStream(cliente.getOutputStream());
@@ -67,24 +69,32 @@ public class Grupo extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(Grupo.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return;
     }
     
+    //Função para enviar a mensagem e o servidor encaminhar para os outros.
     public void enviarMsg(){
+        
+        //Verifica se o JTextField está vazio, se tiver avisa ao cliente para digitar algo.
         if (jtfMsg.getText().trim().equals("")) {
             JOptionPane.showMessageDialog(null, "Digite algo antes de enviar!", "Informação", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
+        
+        //Se o cliente digitar algo, ele manda a mensagem para o servidor e atualiza o JTextArea.
         try {
             vaiPraServidor = new DataOutputStream(cliente.getOutputStream());
             vaiPraServidor.writeBytes(jtfMsg.getText() + '\n');
             jtxTela.append("> " + jtfMsg.getText() + "\n");
+            
+            //Se o cliente digitar "sair", desabilita o botao de enviar e o JTextField.
             if (jtfMsg.getText().equalsIgnoreCase("sair")) {
                 jbSend.setEnabled(false);
                 jtfMsg.setEnabled(false);
             }
+            
             jtfMsg.setText("");
         } catch (IOException ex) {
+            System.out.println("Erro ao enviar mensagem. LOG: ");
             Logger.getLogger(Grupo.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -98,10 +108,12 @@ public class Grupo extends javax.swing.JFrame {
         jtxTela = new javax.swing.JTextArea();
         jtfMsg = new javax.swing.JTextField();
         jbSend = new javax.swing.JButton();
-        jbListUsers = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jlUserCurrent = new javax.swing.JLabel();
         jbSair = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("WhatsOOP");
@@ -130,13 +142,6 @@ public class Grupo extends javax.swing.JFrame {
             }
         });
 
-        jbListUsers.setText("Listar Usuários Conectados");
-        jbListUsers.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbListUsersActionPerformed(evt);
-            }
-        });
-
         jLabel1.setText("Usuário Atual:");
 
         jbSair.setText("Sair");
@@ -146,6 +151,12 @@ public class Grupo extends javax.swing.JFrame {
             }
         });
 
+        jLabel2.setText("OBS:");
+
+        jLabel3.setText("1 - Mandando a mensagem \"sair\", você sairá do chat.");
+
+        jLabel4.setText("2 - Pode-se enviar a mensagem apertando \"Enter\".");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -154,22 +165,25 @@ public class Grupo extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jlUserCurrent, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(24, Short.MAX_VALUE))
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jlUserCurrent, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jtfMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jbListUsers, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jbSair, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbSend, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel4)
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jtfMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel2)
+                                        .addComponent(jLabel3))
+                                    .addGap(18, 18, 18)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(jbSair, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jbSend, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE)))))
+                        .addGap(0, 21, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -185,10 +199,15 @@ public class Grupo extends javax.swing.JFrame {
                     .addComponent(jtfMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jbSend, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jbListUsers, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jbSair, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jbSair, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel3)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel4)
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -209,25 +228,20 @@ public class Grupo extends javax.swing.JFrame {
         enviarMsg();
     }//GEN-LAST:event_jbSendActionPerformed
 
-    private void jbSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSairActionPerformed
-        System.exit(0);
-    }//GEN-LAST:event_jbSairActionPerformed
-
     private void jtfMsgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtfMsgActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jtfMsgActionPerformed
 
     private void jtfMsgKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jtfMsgKeyPressed
+        //Permite que envie a mensagem teclando "Enter".
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
                 enviarMsg();
         }
     }//GEN-LAST:event_jtfMsgKeyPressed
 
-    private void jbListUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbListUsersActionPerformed
-        JOptionPane.showMessageDialog(null, usuarios.listarUsuarios());
-        
-        
-    }//GEN-LAST:event_jbListUsersActionPerformed
+    private void jbSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSairActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_jbSairActionPerformed
 
     /**
      * @param args the command line arguments
@@ -266,31 +280,13 @@ public class Grupo extends javax.swing.JFrame {
         });
 
     }
-
-    public void escutar() {
-        String txt2;
-        BufferedReader veioDoServidor;
-
-        try {
-            veioDoServidor = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
-            System.out.println("veio do serfdfed");
-            while (veioDoServidor.ready()) {
-                txt2 = veioDoServidor.readLine();
-                if (txt2.equalsIgnoreCase("sair")) {
-                    break;
-                }
-                //System.out.println(txt2);
-                jtxTela.append(txt2 + "\n");
-            }
-        } catch (Exception e) {
-            System.out.println("Você saiu do chat.");
-        }
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JButton jbListUsers;
     private javax.swing.JButton jbSair;
     private javax.swing.JButton jbSend;
     private javax.swing.JLabel jlUserCurrent;
