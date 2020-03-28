@@ -48,12 +48,14 @@ public class Grupo extends javax.swing.JFrame {
 
     //Função para iniciar o diálogo da conexão inicial.
     public void iniciar() {
-        JLabel lblMensagem = new JLabel("Conexão");
+        JLabel lblIPServidor = new JLabel("IP do Servidor:");
         JTextField ip = new JTextField("127.0.0.1");
+        JLabel lblPortaServidor = new JLabel("Porta do Servidor:");
         JTextField porta = new JTextField("1");
-        JTextField nome = new JTextField("Cliente");
+        JLabel lblNomeUsuario = new JLabel("Nome do Usuário:");
+        JTextField nome = new JTextField("");
         
-        Object[] texts = {lblMensagem, ip, porta, nome};
+        Object[] texts = {lblIPServidor, ip, lblPortaServidor, porta, lblNomeUsuario, nome};
         JOptionPane.showMessageDialog(null, texts);
         
         jlUserCurrent.setText(nome.getText());
